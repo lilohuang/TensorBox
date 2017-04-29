@@ -7,10 +7,11 @@ import itertools
 from scipy.misc import imread, imresize
 import tensorflow as tf
 
-from data_utils import (annotation_jitter, annotation_to_h5)
-from utils.annolist import AnnotationLib as al
-from rect import Rect
-from utils import tf_concat
+from .data_utils import annotation_jitter, annotation_to_h5
+from . import annolist
+from .annolist import AnnotationLib as al
+from .rect import Rect
+from . import tf_concat
 
 def rescale_boxes(current_shape, anno, target_height, target_width):
     x_scale = target_width / float(current_shape[1])
@@ -115,8 +116,8 @@ def add_rectangles(H, orig_image, confidences, boxes, use_stitching=False, rnn_l
         for y in range(H["grid_height"]):
             for x in range(H["grid_width"]):
                 bbox = boxes_r[0, y, x, n, :]
-                abs_cx = int(bbox[0]) + cell_pix_size/2 + cell_pix_size * x
-                abs_cy = int(bbox[1]) + cell_pix_size/2 + cell_pix_size * y
+                abs_cx = int(bbox[0]) + cell_pix_size//2 + cell_pix_size * x
+                abs_cy = int(bbox[1]) + cell_pix_size//2 + cell_pix_size * y
                 w = bbox[2]
                 h = bbox[3]
                 conf = np.max(confidences_r[0, y, x, n, 1:])
@@ -124,7 +125,7 @@ def add_rectangles(H, orig_image, confidences, boxes, use_stitching=False, rnn_l
 
     all_rects_r = [r for row in all_rects for cell in row for r in cell]
     if use_stitching:
-        from stitch_wrapper import stitch_rects
+        from .stitch_wrapper import stitch_rects
         acc_rects = stitch_rects(all_rects, tau)
     else:
         acc_rects = all_rects_r
@@ -139,8 +140,8 @@ def add_rectangles(H, orig_image, confidences, boxes, use_stitching=False, rnn_l
         for rect in rect_set:
             if rect.confidence > min_conf:
                 cv2.rectangle(image,
-                    (rect.cx-int(rect.width/2), rect.cy-int(rect.height/2)),
-                    (rect.cx+int(rect.width/2), rect.cy+int(rect.height/2)),
+                    (rect.cx-int(rect.width//2), rect.cy-int(rect.height//2)),
+                    (rect.cx+int(rect.width//2), rect.cy+int(rect.height//2)),
                     color,
                     2)
 

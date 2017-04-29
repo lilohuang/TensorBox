@@ -17,7 +17,7 @@ import math
 def edmonds_karp(n, C, s, t, sumC):
 
     # Residual capacity from u to v is C[u][v] - F[u][v]
-    F = [[0] * n for i in xrange(n)]
+    F = [[0] * n for i in range(n)]
     while True:
         P = [-1] * n # Parent table
         P[s] = s
@@ -26,7 +26,7 @@ def edmonds_karp(n, C, s, t, sumC):
         Q = [s]      # BFS queue
         while Q:
             u = Q.pop(0)
-            for v in xrange(n):
+            for v in range(n):
                 # There is available capacity,
         # and v is not seen before in search
                 if C[u][v] - F[u][v] > 0 and P[v] == -1:
@@ -65,9 +65,9 @@ class AnnoGraph:
         self.a = self.n + self.m + 2
 
         # Flow matrix
-        self.F = [[0] * self.a for i in xrange(self.a)]
+        self.F = [[0] * self.a for i in range(self.a)]
         # Capacity matrix
-        self.C = [[0] * self.a for i in xrange(self.a)]
+        self.C = [[0] * self.a for i in range(self.a)]
 
         # Connect source to all detections
         for i in range(1, self.n + 1):
@@ -84,7 +84,7 @@ class AnnoGraph:
         self.ignore_flow = 0
 
         # match rects / Adjacency matrix
-        self.M = [[] for i in xrange(self.n)]
+        self.M = [[] for i in range(self.n)]
         self.match(style, minCover, minOverlap, maxDistance)
         self.nextN = 0
 
@@ -92,7 +92,7 @@ class AnnoGraph:
         # Save row sums for capacity matrix
         self.sumC = []
         self.sumC.append(self.n)
-        for q in [len(self.M[j]) for j in xrange(len(self.M))]:
+        for q in [len(self.M[j]) for j in range(len(self.M))]:
             self.sumC.append(q)
         for q in [1] * self.m:
             self.sumC.append(q)
@@ -100,7 +100,7 @@ class AnnoGraph:
         # Initially no links are active
         self.sumC_active = []
         self.sumC_active.append(self.n)
-        for q in [len(self.M[j]) for j in xrange(len(self.M))]:
+        for q in [len(self.M[j]) for j in range(len(self.M))]:
             self.sumC_active.append(0)
         for q in [1] * self.m:
             self.sumC_active.append(q)
@@ -114,9 +114,9 @@ class AnnoGraph:
 
 
     def match(self, style, minCover, minOverlap, maxDistance):
-        for i in xrange(self.n):
+        for i in range(self.n):
             detRect = self.det.rects[i]
-            for j in xrange(self.m):
+            for j in range(self.m):
                 annoRect = self.anno.rects[j]
 
                 # Bastian Leibe's matching style
@@ -132,7 +132,7 @@ class AnnoGraph:
 
     def decreaseScore(self, score):
         capacity_change = False
-        for i in xrange(self.nextN, self.n):
+        for i in range(self.nextN, self.n):
             if (self.det.rects[i].score >= score):
                 capacity_change = self.insertIntoC(i + 1) or capacity_change
                 self.nextN += 1
@@ -141,7 +141,7 @@ class AnnoGraph:
 
         if capacity_change:
             self.F = edmonds_karp(self.a, self.C, 0, self.a - 1, self.sumC_active)
-            self.full_flow = sum([self.F[0][i] for i in xrange(self.a)])
+            self.full_flow = sum([self.F[0][i] for i in range(self.a)])
             self.ignore_flow = sum([self.F[i][self.a - 1] * self.ignore[i - 1 - self.n] for i in range(1 + self.n, 1 + self.n + self.m )])
 
         return capacity_change
@@ -153,7 +153,7 @@ class AnnoGraph:
 
         if capacity_change:
             self.F = edmonds_karp(self.a, self.C, 0, self.a - 1, self.sumC_active)
-            self.full_flow = sum([self.F[0][i] for i in xrange(self.a)])
+            self.full_flow = sum([self.F[0][i] for i in range(self.a)])
             self.ignore_flow = sum([self.F[i][self.a - 1] * self.ignore[i - 1 - self.n] for i in range(1 + self.n, 1 + self.n + self.m )])
 
         return capacity_change
@@ -183,11 +183,11 @@ class AnnoGraph:
         ret = copy.copy(self.anno)
         ret.rects = []
         #iterate over GT
-        for i in xrange(self.n + 1, self.a - 1):
+        for i in range(self.n + 1, self.a - 1):
             #Flow to sink > 0
             if(self.F[i][self.a - 1] > 0 and self.ignore[i - self.n - 1] == 0):
                 #Find associated det
-                for j in xrange(1, self.n + 1):
+                for j in range(1, self.n + 1):
                     if(self.F[j][i] > 0):
                         ret.rects.append(self.det[j - 1])
                         break
@@ -197,11 +197,11 @@ class AnnoGraph:
         ret = copy.copy(self.anno)
         ret.rects = []
         #iterate over GT
-        for i in xrange(self.n + 1, self.a - 1):
+        for i in range(self.n + 1, self.a - 1):
             #Flow to sink > 0
             if(self.F[i][self.a - 1] > 0 and self.ignore[i - self.n - 1] == 1):
                 #Find associated det
-                for j in xrange(1, self.n + 1):
+                for j in range(1, self.n + 1):
                     if(self.F[j][i] > 0):
                         ret.rects.append(self.det[j - 1])
                         break
@@ -210,7 +210,7 @@ class AnnoGraph:
     def getMissingRecall(self):
         ret = copy.copy(self.anno)
         ret.rects = []
-        for i in xrange(self.n + 1, self.a - 1):
+        for i in range(self.n + 1, self.a - 1):
             if(self.F[i][self.a - 1] == 0 and self.ignore[i - self.n - 1] == 0):
                 ret.rects.append(self.anno.rects[i - self.n - 1])
         return ret
@@ -218,7 +218,7 @@ class AnnoGraph:
     def getFalsePositives(self):
         ret = copy.copy(self.det)
         ret.rects = []
-        for i in xrange(1, self.n + 1):
+        for i in range(1, self.n + 1):
             if(self.F[0][i] == 0):
                 ret.rects.append(self.det[i - 1])
         return ret
@@ -258,7 +258,7 @@ def asort(idlGT, idlDet, minWidth, minHeight, style, minCover, minOverlap, maxDi
                             overlap = j.overlap_pascal(frect)
                             matchingIndexes.append((m, overlap))
 
-                for m in xrange(len(matchingIndexes) - 1, -1, -1):
+                for m in range(len(matchingIndexes) - 1, -1, -1):
                     matching_rect = idlDet[filterIndex].rects[matchingIndexes[m][0]]
                     matching_overlap = matchingIndexes[m][1]
                     better_overlap_found = False
@@ -360,7 +360,7 @@ def comp_prec_recall_all_params(annoIDL, detIDL, ignoreIDL, minWidth=0, minHeigh
     graphs = []
     allRects = []
     missingFrames = 0
-    for i in xrange(len(annoIDL)):
+    for i in range(len(annoIDL)):
 
         imageFound = False
         filterIndex = -1
@@ -631,7 +631,7 @@ def main():
     print "saving:\n" + outfilename;
 
     file = open(outfilename, 'w')
-    for i in xrange(len(precs)):
+    for i in range(len(precs)):
         file.write(str(precs[i])+" "+str(recalls[i])+" "+str(scores[i])+ " " + str(fppi[i])+ "\n")
     file.close()
 
@@ -645,7 +645,7 @@ def main():
         missingRecall = AnnoList([])
         ignoredTruePositives = AnnoList([])
 
-        for i in xrange(len(graphs)):
+        for i in range(len(graphs)):
             falsePositives.append(graphs[i].getFalsePositives())
             truePositives.append(graphs[i].getTruePositives())
             truePositives[-1].imageName = falsePositives[-1].imageName
