@@ -48,7 +48,7 @@ void filter_rects(const vector<vector<vector<Rect> > >& all_rects,
       
       int num_pred = MAX(current_rects.size(), relevant_rects.size());
 
-      int int_cost[num_pred * num_pred];
+      std::vector<int> int_cost(num_pred * num_pred);
       for (int k = 0; k < num_pred * num_pred; ++k) { int_cost[k] = 0; }
       for (int k = 0; k < (int)current_rects.size(); ++k) {
         for (int l = 0; l < (int)relevant_rects.size(); ++l) {
@@ -65,7 +65,7 @@ void filter_rects(const vector<vector<vector<Rect> > >& all_rects,
       std::vector<int> assignment;
 
       hungarian_problem_t p;
-      int** m = array_to_matrix(int_cost, num_pred, num_pred);
+      int** m = array_to_matrix(int_cost.data(), num_pred, num_pred);
       hungarian_init(&p, m, num_pred, num_pred, HUNGARIAN_MODE_MINIMIZE_COST);
       hungarian_solve(&p);
       for (int i = 0; i < num_pred; ++i) {
